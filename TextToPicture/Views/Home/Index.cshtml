@@ -1,0 +1,124 @@
+﻿@model TextToPicture.Models.Dalle
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<h1 class="display-4">Hi, my name is DALL-E</h1>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-4">
+            @using (Html.BeginForm("GenerateImage", "Home", FormMethod.Post, new { @class = "form-horizontal" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.GenerateInput!.Prompt, "Prompt: ", new {@class = "form-label"})
+                    @Html.TextAreaFor(m => m.GenerateInput!.Prompt, new {@class = "form-control", required = "required"})
+                    @Html.ValidationMessageFor(m => m.GenerateInput!.Prompt)
+                </div>
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.GenerateInput!.N, "Number of Images: ", new {@class = "form-label"})
+                    @Html.TextBoxFor(m => m.GenerateInput!.N, new {@class = "form-control", type = "number", min = "1", max = "10", required = "required"})
+                    @Html.ValidationMessageFor(m => m.GenerateInput!.N)
+                </div>
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.GenerateInput!.Size, "Source Currency", new {@class = "form-label"})
+                    @Html.DropDownListFor(m => m.GenerateInput!.Size, new SelectList(new List<string> { "256x256", "512x512", "1024x1024" }), new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.GenerateInput!.Size)
+                    <span>(e.g., 1024x1024)</span>
+                </div>
+                <div class="btn-group" role="group" aria-label="Generate">
+                    <button type="submit" class="btn btn-success">Generate</button>
+                </div>
+            }
+        </div>
+        <div class="col-4">
+            @using (Html.BeginForm("EditImage", "Home", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+            {
+                @Html.AntiForgeryToken()
+                <div>
+                    @Html.LabelFor(m => m.EditInput!.Image, "Image: ", new {@class = "form-label"})
+                    @Html.TextBoxFor(m => m.EditInput!.Image, new { type = "file", required = "required" })
+                    @Html.ValidationMessageFor(m => m.EditInput!.Image)
+                </div>
+                <div>
+                    @Html.LabelFor(m => m.EditInput!.Mask, "Mask: ", new {@class = "form-label"})
+                    @Html.TextBoxFor(m => m.EditInput!.Mask, new { type = "file", required = "required" })
+                    @Html.ValidationMessageFor(m => m.EditInput!.Mask)
+                </div>
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.EditInput!.Prompt, "Prompt: ", new {@class = "form-label"})
+                    @Html.TextAreaFor(m => m.EditInput!.Prompt, new {@class = "form-control", required = "required"})
+                    @Html.ValidationMessageFor(m => m.EditInput!.Prompt)
+                </div>
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.EditInput!.N, "Number of Images: ", new {@class = "form-label"})
+                    @Html.TextBoxFor(m => m.EditInput!.N, new {@class = "form-control", type = "number", min = "1", max = "10", required = "required"})
+                    @Html.ValidationMessageFor(m => m.EditInput!.N)
+                </div>
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.EditInput!.Size, "Source Currency", new {@class = "form-label"})
+                    @Html.DropDownListFor(m => m.EditInput!.Size, new SelectList(new List<string> { "256x256", "512x512", "1024x1024" }), new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.EditInput!.Size)
+                    <span>(e.g., 1024x1024)</span>
+                </div>
+                <div class="btn-group" role="group" aria-label="Edit">
+                    <button type="submit" class="btn btn-success">Edit</button>
+                </div>
+            }
+        </div>
+        <div class="col-4">
+            @using (Html.BeginForm("VariationImage", "Home", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+            {
+                @Html.AntiForgeryToken()
+                <div>
+                    @Html.LabelFor(m => m.VariationInput!.Image, "Image: ", new {@class = "form-label"})
+                    @Html.TextBoxFor(m => m.VariationInput!.Image, new { type = "file", required = "required" })
+                    @Html.ValidationMessageFor(m => m.VariationInput!.Image)
+                </div>
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.VariationInput!.N, "Number of Images: ", new {@class = "form-label"})
+                    @Html.TextBoxFor(m => m.VariationInput!.N, new {@class = "form-control", type = "number", min = "1", max = "10", required = "required"})
+                    @Html.ValidationMessageFor(m => m.VariationInput!.N)
+                </div>
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.VariationInput!.Size, "Source Currency", new {@class = "form-label"})
+                    @Html.DropDownListFor(m => m.VariationInput!.Size, new SelectList(new List<string> { "256x256", "512x512", "1024x1024" }), new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.VariationInput!.Size)
+                    <span>(e.g., 1024x1024)</span>
+                </div>
+                <div class="btn-group" role="group" aria-label="Variation">
+                    <button type="submit" class="btn btn-success">Variation</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+
+<hr style="height:2px;border-width:0;color:gray;background-color:gray">
+<div class="container-fluid">
+    <div class="row">
+        @if (@Model?.Links != null)
+        {
+            <div class="img-fluid">
+                <h4>Generated Images:</h4>
+                @foreach (var link in Model.Links)
+                {
+                    <img src="@link" alt="Generated Image" />
+                }
+            </div>
+        }
+    </div>
+</div>
+
+
+@if (!string.IsNullOrEmpty(ViewBag.Error))
+{
+    <div>
+        <p>@ViewBag.Error</p>
+    </div>
+}
+  
